@@ -1,0 +1,6 @@
+#include "Basic.h"
+
+int main() {
+
+	return 0;
+}
