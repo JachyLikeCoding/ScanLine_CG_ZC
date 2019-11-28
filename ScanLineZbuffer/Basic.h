@@ -7,8 +7,11 @@
 #include<fstream>
 #include<vector>
 #include<cmath>
+#include <GL\freeglut.h>
+#include "glm/glm.hpp"
 
 using namespace std;
+using namespace glm;
 
 
 

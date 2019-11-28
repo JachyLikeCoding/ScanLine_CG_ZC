@@ -21,6 +21,9 @@
     <ClInclude Include="DataStructure.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="display.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
