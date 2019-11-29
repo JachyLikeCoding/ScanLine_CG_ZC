@@ -119,11 +119,17 @@
     <ClInclude Include="Basic.h" />
     <ClInclude Include="DataStructure.h" />
     <ClInclude Include="display.h" />
+    <ClInclude Include="ObjLoader.h" />
+    <ClInclude Include="RegionalScanlineZBuffer.h" />
+    <ClInclude Include="ScanlineZBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DataStructure.cpp" />
     <ClCompile Include="display.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ObjLoader.cpp" />
+    <ClCompile Include="RegionalScanlineZBuffer.cpp" />
+    <ClCompile Include="ScanlineZBuffer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,7 @@
 ﻿  DataStructure.cpp
   display.cpp
   main.cpp
+  RegionalScanlineZBuffer.cpp
+  ScanlineZBuffer.cpp
+c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\scanlinezbuffer.h(13): error C2059: 语法错误:“>”
   正在生成代码...
-  ScanLineZbuffer.vcxproj -> C:\Users\ChiZhang\Desktop\ChiZhang\CG_Chizhang\ScanLine_CG_ZC\ScanLineZbuffer\x64\Debug\ScanLineZbuffer.exe
