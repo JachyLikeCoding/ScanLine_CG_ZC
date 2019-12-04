@@ -3,7 +3,7 @@
 #define SCANLINE_Z_BUFFER
 
 #include "DataStructure.h"
-
+#include "ObjLoader.h"
 class ScanlineZBufferProcessor {
 public:
 	void buildCET();
@@ -16,11 +16,6 @@ private:
 	int width, height;
 	vector<ClassifiedPolygon *>CPT;
 	Object obj;
-
-	
-
-
-
 };
 
 
