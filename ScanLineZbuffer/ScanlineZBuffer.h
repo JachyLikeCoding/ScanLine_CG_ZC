@@ -8,12 +8,14 @@ class ScanlineZBufferProcessor {
 public:
 	void buildCET();
 	void buildCPT();
-	void buildAET();
-	void buildAPT();
+	void buildAET(int y);
+	void buildAPT(int y);
+	void updateZBuffer(int y);
+	void ScanlineZBuffer();
 	
 
 private:
-	int width, height;
+	int winWidth, winHeight;
 	vector<ClassifiedPolygon *>CPT;
 	Object obj;
 };
