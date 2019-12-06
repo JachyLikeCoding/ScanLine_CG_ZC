@@ -44,7 +44,8 @@ bool Object::loadObj(const string &objName) {
 				input >> tmps[0] >> tmps[1] >> tmps[2];
 				for (int i = 0; i < 3; i++) {
 					iter = find(tmps[i].begin(), tmps[i].end(), '/');
-					vid[i] = stoi(tmps[i].substr(0, iter - tmps[i].begin()));
+					vid[i] = stoi(tmps[i].substr(0, iter - tmps[i].begin()));//注意obj文件里顶点序号从1或-1开始
+					vid[i] > 0 ? (vid[i]--) : (vid[i] += vertexes.size());//这里把它统一成0,1,2,3序号
 				}
 				faces.push_back(vid);
 			}
@@ -96,23 +97,19 @@ void Object::CalFace(int face_id, int a, int b, int c, int d, int &maxY, float &
 	maxZ = (vertexes[v1_id].z > vertexes[v2_id].z) ? vertexes[v1_id].z : vertexes[v2_id].z;
 	maxZ = (maxZ > vertexes[v3_id].z) ? maxZ : vertexes[v3_id].z;
 
-	maxY = (vertexes[v1_id].y > vertexes[v2_id].y) ? vertexes[v1_id].y : vertexes[v2_id].y;
-	maxY = (maxY > vertexes[v3_id].y) ? maxY : vertexes[v3_id].y;
+	float max_Y = (vertexes[v1_id].y > vertexes[v2_id].y) ? vertexes[v1_id].y : vertexes[v2_id].y;
+	max_Y = (max_Y > vertexes[v3_id].y) ? max_Y : vertexes[v3_id].y;
 
 	//step 3: calculate dy
 	float minY = (vertexes[v1_id].y < vertexes[v2_id].y) ? vertexes[v1_id].y : vertexes[v2_id].y;
 	minY = (minY < vertexes[v3_id].y) ? minY : vertexes[v3_id].y;
 	
-	maxY = (int)(maxY + 0.5);
+	maxY = (int)(max_Y + 0.5);
 	minY = (int)(minY + 0.5);
 	dy = maxY - minY;
-
-	int v1, v2, v3;
-
-
 }
 
-void Object::CalFaceEdges(vector<ClassifiedEdge *> edges, int face_id) {
+void Object::CalFaceEdges(int face_id) {
 	ClassifiedEdge *edge1 = new ClassifiedEdge;
 	ClassifiedEdge *edge2 = new ClassifiedEdge;
 	ClassifiedEdge *edge3 = new ClassifiedEdge;
@@ -127,33 +124,28 @@ void Object::CalFaceEdges(vector<ClassifiedEdge *> edges, int face_id) {
 			v1 = v3_id;
 			v2 = v2_id;
 			v3 = v1_id;
-		}
-		else {
+		}else {
 			if (vertexes[v1_id].y < vertexes[v3_id].y) {
 				v1 = v2_id;
 				v2 = v3_id;
 				v3 = v1_id;
-			}
-			else {
+			}else {
 				v1 = v2_id;
 				v2 = v1_id;
 				v3 = v3_id;
 			}
 		}
-	}
-	else {
+	}else {
 		if (vertexes[v1_id].y < vertexes[v3_id].y) {
 			v1 = v3_id;
 			v2 = v1_id;
 			v3 = v2_id;
-		}
-		else {
+		}else {
 			if (vertexes[v2_id].y < vertexes[v3_id].y) {
 				v1 = v1_id;
 				v2 = v3_id;
 				v3 = v2_id;
-			}
-			else {
+			}else {
 				v1 = v1_id;
 				v2 = v2_id;
 				v3 = v3_id;
@@ -164,8 +156,27 @@ void Object::CalFaceEdges(vector<ClassifiedEdge *> edges, int face_id) {
 	CalEdge(face_id, v1, v2, edge1);
 	CalEdge(face_id, v1, v3, edge2);
 	CalEdge(face_id, v2, v3, edge3);
-
 	edges.push_back(edge1);
 	edges.push_back(edge2);
 	edges.push_back(edge3);
+}
+
+//just for debug
+void Object::test() {
+	//test vertexes of face
+	cout << "face count: " << faces.size() << endl;
+	for (int i = 0; i < faces.size(); i++) {
+		CalFaceEdges(i);
+		cout << "[" << i << "]";
+		for (int j = 0; j < faces[i].size(); j++) {
+			cout << faces[i][j] << "\t";
+		} 
+		cout << endl;
+	}
+	//test edges of face:
+	cout << edges.size() << endl;
+	for (int i = 0; i < edges.size(); i++) {
+		cout << "edge_polygon_id: " << edges[i]->edge_polygon_id;
+		cout << "\tedge_dy: " << edges[i]->dy << endl;
+	}
 }

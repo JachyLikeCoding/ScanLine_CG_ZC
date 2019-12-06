@@ -15,9 +15,13 @@ public:
 	
 
 private:
-	int winWidth, winHeight;
-	vector<ClassifiedPolygon *>CPT;
 	Object obj;
+	int winWidth, winHeight;
+	vector<ClassifiedPolygon *> CPT;
+	vector<ClassifiedEdge *> CET;
+	ActivePolygon *APT;
+	ActiveEdge *AET;
+	vector<GLfloat> zbuffer;
 };
 
 
