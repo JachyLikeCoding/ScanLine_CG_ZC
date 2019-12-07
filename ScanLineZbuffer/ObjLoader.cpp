@@ -4,7 +4,13 @@ void Object::initObject(const string &objName, int _width, int _height, int _mod
 	winWidth = _width;
 	winHeight = _height;
 	mode = _mode;
-	loadObj(objName);
+	bool flag = loadObj(objName);
+	if (flag) {
+		cout << "---------------------obj file is loaded successfully-------------------------" << endl;
+	}
+	else {
+		cerr << "load fail. Check your file '" << objName << " '.\n";
+	}
 }
 
 
@@ -77,21 +83,21 @@ void Object::CalEdge(int polygon_id, int v1_id, int v2_id, ClassifiedEdge *edge)
 	edge->maxY = v1.y > v2.y ? (int)(v1.y + 0.5f) : (int)(v2.y + 0.5f);
 }
 
-void Object::CalFace(int face_id, int a, int b, int c, int d, int &maxY, float &maxZ, int &dy, vec3 color) {
+void Object::CalFace(int face_id, GLfloat &a, GLfloat &b, GLfloat &c, GLfloat &d, int &maxY, GLfloat &maxZ, int &dy, vec3 &color) {
 	int v1_id = faces[face_id][0];//three vertexes of the face
 	int v2_id = faces[face_id][1];
 	int v3_id = faces[face_id][2];
 	//step1: calculate parameters a,b,c,d
-	a = ((vertexes[v2_id].y - vertexes[v1_id].y)*(vertexes[v3_id].z - vertexes[v1_id].z)
+	a = (float)((vertexes[v2_id].y - vertexes[v1_id].y)*(vertexes[v3_id].z - vertexes[v1_id].z)
 		- (vertexes[v2_id].z - vertexes[v1_id].z)*(vertexes[v3_id].y - vertexes[v1_id].y));
 
-	b = ((vertexes[v2_id].z - vertexes[v1_id].z)*(vertexes[v3_id].x - vertexes[v1_id].x)
+	b = (float)((vertexes[v2_id].z - vertexes[v1_id].z)*(vertexes[v3_id].x - vertexes[v1_id].x)
 		- (vertexes[v2_id].x - vertexes[v1_id].x)*(vertexes[v3_id].z - vertexes[v1_id].z));
 
-	c = ((vertexes[v2_id].x - vertexes[v1_id].x)*(vertexes[v3_id].y - vertexes[v1_id].y)
+	c = (float)((vertexes[v2_id].x - vertexes[v1_id].x)*(vertexes[v3_id].y - vertexes[v1_id].y)
 		- (vertexes[v2_id].y - vertexes[v1_id].y)*(vertexes[v3_id].x - vertexes[v1_id].x));
 
-	d = (0 - (a*vertexes[v1_id].x + b * vertexes[v1_id].y + c * vertexes[v1_id].z));
+	d = (float)(0 - (a*vertexes[v1_id].x + b * vertexes[v1_id].y + c * vertexes[v1_id].z));
 
 	//step2: calculate maxZ and maxY
 	maxZ = (vertexes[v1_id].z > vertexes[v2_id].z) ? vertexes[v1_id].z : vertexes[v2_id].z;

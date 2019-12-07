@@ -14,4 +14,8 @@
 using namespace std;
 using namespace glm;
 
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 800
+
+
 #endif // !BASIC_H
