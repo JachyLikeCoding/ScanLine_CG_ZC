@@ -11,8 +11,9 @@ public:
 	int dy;						//跨越的扫描线数
 	ivec3 color;			//多边形颜色
 	ClassifiedPolygon *nxtPolygon;
-	ClassifiedPolygon(int _polygon_id, int _a, int _b, int _c, int _d, int _dy, ivec3 _color, ClassifiedPolygon *_nxtPolygon) :
+	ClassifiedPolygon(int _polygon_id, GLfloat _a, GLfloat _b, GLfloat _c, GLfloat _d, int _dy, ivec3 _color, ClassifiedPolygon *_nxtPolygon) :
 		polygon_id(_polygon_id), a(_a), b(_b), c(_c), d(_d), dy(_dy), nxtPolygon(_nxtPolygon){}
+	
 };
 
 //分类边表
@@ -36,14 +37,17 @@ public:
 	int xl, xr;					//左、右交点的x坐标
 	int dxl, dxr;
 	int dyl, dyr;
-	int polygon_id;
+	int edge_polygon_id;
 	ivec3 color;
 	GLfloat zl;
 	GLfloat dzx;
 	GLfloat dzy;
 	ActiveEdge *nextAE;
+
+	ActiveEdge(ClassifiedEdge &leftEdge, ClassifiedEdge &rightEdge, ClassifiedPolygon &CP);
 };
 
+//活化多边形表
 class ActivePolygon {
 public:
 	int polygon_id;		//多边形编号

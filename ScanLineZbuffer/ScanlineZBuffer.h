@@ -20,36 +20,10 @@ public:
 	int winWidth, winHeight;
 	vector<ClassifiedPolygon *> CPT;
 	vector<ClassifiedEdge *> CET;
-	ActivePolygon *APT;
-	ActiveEdge *AET;
-	vector<GLfloat> zbuffer;
-
+	vector<ActivePolygon *>APT;
+	vector<ActiveEdge *> AET;
+	vector<GLfloat> zbuffer;	//z»º³åÆ÷
+	vector<int> coloridbuffer;//Ö¡»º³åÆ÷
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif // !SCANLINE_Z_BUFFER_H
