@@ -1,8 +1,8 @@
 ﻿  ScanlineZBuffer.cpp
 c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\datastructure.h(15): warning C4244: “初始化”: 从“GLfloat”转换到“int”，可能丢失数据
-c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\scanlinezbuffer.cpp(75): warning C4244: “参数”: 从“int”转换到“GLfloat”，可能丢失数据
-c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\scanlinezbuffer.cpp(101): warning C4244: “初始化”: 从“GLfloat”转换到“int”，可能丢失数据
-c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\scanlinezbuffer.cpp(102): warning C4305: “参数”: 从“int”到“const _Ty”截断
+c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\scanlinezbuffer.cpp(44): warning C4244: “参数”: 从“int”转换到“GLfloat”，可能丢失数据
+c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\scanlinezbuffer.cpp(94): warning C4244: “初始化”: 从“GLfloat”转换到“int”，可能丢失数据
+c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\scanlinezbuffer.cpp(95): warning C4305: “参数”: 从“int”到“const _Ty”截断
           with
           [
               _Ty=GLfloat

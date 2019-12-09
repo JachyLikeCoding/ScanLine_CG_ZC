@@ -73,14 +73,15 @@ bool Object::loadObj(const string &objName) {
 
 
 
-void Object::CalEdge(int polygon_id, int v1_id, int v2_id, ClassifiedEdge *edge) {
+ClassifiedEdge Object::CalEdge(int polygon_id, int v1_id, int v2_id, ClassifiedEdge edge) {
 	vec3 v1 = vertexes[v1_id];
 	vec3 v2 = vertexes[v2_id];
-	edge->edge_polygon_id = polygon_id;
-	edge->x = v1.y > v2.y ? v1.x : v2.x;
-	edge->dx = -(v2.x - v1.x) / (v2.y - v1.y);
-	edge->dy = abs((int)(v1.y + 0.5f) - (int)(v2.y + 0.5f));
-	edge->maxY = v1.y > v2.y ? (int)(v1.y + 0.5f) : (int)(v2.y + 0.5f);
+	edge.edge_polygon_id = polygon_id;
+	edge.x = v1.y > v2.y ? v1.x : v2.x;
+	edge.dx = -(v2.x - v1.x) / (v2.y - v1.y);
+	edge.dy = abs((int)(v1.y + 0.5f) - (int)(v2.y + 0.5f));
+	edge.maxY = v1.y > v2.y ? (int)(v1.y + 0.5f) : (int)(v2.y + 0.5f);
+	return edge;
 }
 
 void Object::CalFace(int face_id, GLfloat &a, GLfloat &b, GLfloat &c, GLfloat &d, int &maxY, GLfloat &maxZ, int &dy, vec3 &color) {
@@ -116,9 +117,7 @@ void Object::CalFace(int face_id, GLfloat &a, GLfloat &b, GLfloat &c, GLfloat &d
 }
 
 void Object::CalFaceEdges(int face_id) {
-	ClassifiedEdge *edge1 = new ClassifiedEdge;
-	ClassifiedEdge *edge2 = new ClassifiedEdge;
-	ClassifiedEdge *edge3 = new ClassifiedEdge;
+	ClassifiedEdge edge1, edge2, edge3;
 
 	int v1, v2, v3;// v1.y > v2.y > v3.y
 	int v1_id = faces[face_id][0];//three vertexes of the face
@@ -159,12 +158,9 @@ void Object::CalFaceEdges(int face_id) {
 		}
 	}
 
-	CalEdge(face_id, v1, v2, edge1);
-	CalEdge(face_id, v1, v3, edge2);
-	CalEdge(face_id, v2, v3, edge3);
-	edges.push_back(edge1);
-	edges.push_back(edge2);
-	edges.push_back(edge3);
+	edges.push_back(CalEdge(face_id, v1, v2, edge1));
+	edges.push_back(CalEdge(face_id, v1, v3, edge2));
+	edges.push_back(CalEdge(face_id, v2, v3, edge3));
 }
 
 //just for debug
@@ -182,7 +178,7 @@ void Object::test() {
 	//test edges of face:
 	cout << edges.size() << endl;
 	for (int i = 0; i < edges.size(); i++) {
-		cout << "edge_polygon_id: " << edges[i]->edge_polygon_id;
-		cout << "\tedge_dy: " << edges[i]->dy << endl;
+		cout << "edge_polygon_id: " << edges[i].edge_polygon_id;
+		cout << "\tedge_dy: " << edges[i].dy << endl;
 	}
 }

@@ -10,9 +10,9 @@ public:
 	vector<vec3> vertexes;
 	vector<vector<int>> faces;
 	vector<vec3> colorlist;
-	vector<ClassifiedEdge *> edges;
+	vector<ClassifiedEdge> edges;
 	void initObject(const string &objName, int width, int height, int mode);
-	void CalEdge(int polygon_id, int v1_id, int v2_id, ClassifiedEdge *edge);
+	ClassifiedEdge CalEdge(int polygon_id, int v1_id, int v2_id, ClassifiedEdge edge);
 	void CalFace(int face_id, GLfloat &a, GLfloat &b, GLfloat &c, GLfloat &d, int &maxY, GLfloat &maxZ, int &dy, vec3 &color);
 	void CalFaceEdges(int face_id);
 	GLfloat maxY, minY, maxX, minX;

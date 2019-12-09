@@ -28,6 +28,8 @@ public:
 	ClassifiedEdge() : x(0), dx(0), dy(-1), maxY(0), edge_polygon_id(-1), nxtEdge(nullptr) {}
 	ClassifiedEdge(int _x, int _dx, int _dy, int _maxY, int _edge_polygon_id = -1, ClassifiedEdge *_next = nullptr) :
 		x(_x), dx(_dx), dy(_dy), maxY(_maxY), edge_polygon_id(_edge_polygon_id), nxtEdge(_next) {}
+	bool isLeftEdge(ClassifiedEdge &edge);
+	bool isSamePolygon(ClassifiedEdge &edge);
 };
 
 

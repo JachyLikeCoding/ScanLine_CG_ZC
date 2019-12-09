@@ -19,3 +19,27 @@ ActiveEdge::ActiveEdge(ClassifiedEdge &leftEdge, ClassifiedEdge &rightEdge, Clas
 		zl = -INT_MAX;
 	}
 }
+
+
+bool ClassifiedEdge::isSamePolygon(ClassifiedEdge &edge){
+	if (edge_polygon_id == edge.edge_polygon_id) 
+		return true;
+	else
+		return false;
+}
+
+bool ClassifiedEdge::isLeftEdge(ClassifiedEdge &edge) {
+	//先看是不是同一个多边形的边才能比较
+	if (edge_polygon_id == edge.edge_polygon_id) {
+		if (x < edge.x)
+		{
+			return true;
+		}
+		else if(x == edge.x){
+			if (dx < edge.dx || edge.dx == -INT_MAX) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
