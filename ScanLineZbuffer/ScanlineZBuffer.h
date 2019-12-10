@@ -10,9 +10,14 @@ public:
 	void buildCET();
 	void buildCPT();
 	bool addPolygonToAPT(int maxY, vector<ActivePolygon> &APT, vector<vector<ClassifiedPolygon>> &CPT);
-	bool addEdgeToAET(vector<ClassifiedEdge> &CET_y, vector<ActiveEdge> &AET, vector<ClassifiedPolygon> &CPT_y);
+	void addEdgeToAET(vector<ClassifiedEdge> &CET_y, vector<ActiveEdge> &AET, vector<ClassifiedPolygon> &CPT_y);
 	void ScanlineZBuffer(Object &_obj);
+	void updateBuffer(vector<ActiveEdge> &AET);
+	void update_APTAET(vector<ActivePolygon> &APT, vector<ActiveEdge> &AET, vector<ClassifiedEdge> &CET_y);
+	void drawScanline(int y, vector<ActivePolygon> &APT, vector<ActiveEdge> &AET);
 	void resizeWindow(int width, int height);
+	void getColor(int polygon_id, vec3 &color, vector<ActivePolygon> &APT);
+	void clearDS();
 	void test();//just for debug
 	void printAET(vector<ActiveEdge> &AET);
 	void printAPT(vector<ActivePolygon> &APT);
@@ -24,6 +29,8 @@ public:
 	vector<ActiveEdge> AET;
 	vector<GLfloat> zbuffer;//z»º³åÆ÷
 	vector<int> coloridbuffer;//Ö¡»º³åÆ÷
+	vector<GLfloat> framebuffer;
+	
 };
 
 #endif // !SCANLINE_Z_BUFFER_H

@@ -6,6 +6,5 @@
 #define WINWIDTH 1920
 #define WINHEIGHT 1080
 
-void display(int argc, char* argv[]);
 
 #endif // !DISPLAY_H

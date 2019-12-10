@@ -8,6 +8,7 @@
 #include<vector>
 #include<cmath>
 #include<string>
+#include<ctime>
 #include <GL\freeglut.h>
 #include "glm/glm.hpp"
 

@@ -1,10 +1,13 @@
-﻿  ScanlineZBuffer.cpp
-c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\datastructure.h(15): warning C4244: “初始化”: 从“GLfloat”转换到“int”，可能丢失数据
-c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\scanlinezbuffer.cpp(44): warning C4244: “参数”: 从“int”转换到“GLfloat”，可能丢失数据
-c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\scanlinezbuffer.cpp(94): warning C4244: “初始化”: 从“GLfloat”转换到“int”，可能丢失数据
-c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\scanlinezbuffer.cpp(95): warning C4305: “参数”: 从“int”到“const _Ty”截断
+﻿  ObjLoader.cpp
+c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\datastructure.h(29): warning C4244: “初始化”: 从“int”转换到“GLfloat”，可能丢失数据
+c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\objloader.cpp(28): warning C4305: “=”: 从“int”到“GLfloat”截断
+c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\objloader.cpp(29): warning C4305: “=”: 从“int”到“GLfloat”截断
+c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\objloader.cpp(31): warning C4305: “=”: 从“int”到“GLfloat”截断
+c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\objloader.cpp(54): warning C4267: “+=”: 从“size_t”转换到“_Ty”，可能丢失数据
           with
           [
-              _Ty=GLfloat
+              _Ty=int
           ]
+c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\objloader.cpp(115): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
+c:\users\chizhang\desktop\chizhang\cg_chizhang\scanline_cg_zc\scanlinezbuffer\objloader.cpp(116): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
   ScanLineZbuffer.vcxproj -> C:\Users\ChiZhang\Desktop\ChiZhang\CG_Chizhang\ScanLine_CG_ZC\ScanLineZbuffer\x64\Debug\ScanLineZbuffer.exe

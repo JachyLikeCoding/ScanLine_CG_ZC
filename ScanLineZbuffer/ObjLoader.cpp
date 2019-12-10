@@ -114,6 +114,29 @@ void Object::CalFace(int face_id, GLfloat &a, GLfloat &b, GLfloat &c, GLfloat &d
 	maxY = (int)(max_Y + 0.5);
 	minY = (int)(minY + 0.5);
 	dy = maxY - minY;
+
+	//step4: calculate color
+	/*GLfloat param_abssum = abs(a) + abs(b) + abs(c);
+	if (param_abssum == 0) {
+		cerr << "normal vector is 0." << endl;
+		param_abssum = 1;
+	}
+	a /= param_abssum;
+	b /= param_abssum;
+	c /= param_abssum;*/
+	GLfloat p0 = abs(a);
+	GLfloat p1 = abs(b);
+	GLfloat p2 = abs(c);
+	GLfloat cosTheta = p2 / sqrt(p0 + p1 + p2);
+	//d = -a * vertexes[v1_id].x - b * vertexes[v1_id].y - c * vertexes[v1_id].z;
+	//color.x = cosTheta;
+	color.x = rand() % 100 / (float)(100);
+	color.y = rand() % 100 / (float)(100);
+	color.z = rand() % 100 / (float)(100);
+	/*color.y = cosTheta;
+	color.z = cosTheta;*/
+
+	cout << face_id << " face color : " << color.x << "\t" << color.y << "\t" << color.z << endl;
 }
 
 void Object::CalFaceEdges(int face_id) {
