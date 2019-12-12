@@ -20,7 +20,6 @@ void ScanlineZBufferProcessor::buildCPT() {
 		GLfloat a, b, c, d;
 		int dy;
 		vec3 color;
-		
 		obj.CalFace(i, a, b, c, d, maxY, maxZ, dy, color);
 		obj.CalFaceEdges(i);
 		ClassifiedPolygon newCP(i, a, b, c, d, dy, color);
@@ -112,9 +111,7 @@ void ScanlineZBufferProcessor::ScanlineZBuffer(Object &_obj) {
 			if (addPolygonToAPT(y, APT, CPT)) {
 				addEdgeToAET(CET[y], AET, CPT[y]);
 			}
-			updateBuffer(AET);
-			//draw pixels on the scanline
-			drawScanline(y, APT, AET);
+			updateBuffer(AET,y);
 			//update APT & AET
 			update_APTAET(APT, AET, CET[y]);
 		}
@@ -182,36 +179,44 @@ void ScanlineZBufferProcessor::resizeWindow(int width, int height) {
 }
 
 //update z-buffer and color buffer
-void ScanlineZBufferProcessor::updateBuffer(vector<ActiveEdge> &AET) {
+void ScanlineZBufferProcessor::updateBuffer(vector<ActiveEdge> &AET, int y) {
 	for (int i = 0; i < AET.size(); i++) {
 		GLfloat zx = AET[i].xl;
 		for (int x = int(AET[i].xl)+1; x <= AET[i].xr; x++) {
 			zx += AET[i].dzx;
 			if (zx > zbuffer[x]) {
+				//更新深度缓存
 				zbuffer[x] = zx;
 				coloridbuffer[x] = AET[i].edge_polygon_id;
+				vec3 color = getColor(coloridbuffer[x], APT);
+				//更新帧缓存
+				framebuffer[3 * (y * WINDOW_WIDTH + x)] = color[0];
+				framebuffer[3 * (y * WINDOW_WIDTH + x) + 1] = color[1];
+				framebuffer[3 * (y * WINDOW_WIDTH + x) + 2] = color[2];
 			}
 		}
 	}
 }
 
 void ScanlineZBufferProcessor::drawScanline(int y, vector<ActivePolygon> &APT, vector<ActiveEdge> &AET) {
-	//glDrawPixels(winWidth, winHeight, GL_RGB, GL_FLOAT, &framebuffer[0]);
-	for (int x = 0; x < WINDOW_WIDTH; x++) {
+	glDrawPixels(winWidth, winHeight, GL_RGB, GL_FLOAT, &framebuffer[0]);
+	/*for (int x = 0; x < WINDOW_WIDTH; x++) {
 		vec3 pixelcolor;
 		getColor(coloridbuffer[x], pixelcolor, APT);
 		glColor3f(pixelcolor[0], pixelcolor[1], pixelcolor[2]);
 		glVertex3f(x, y, zbuffer[x]);
-	}
+	}*/
 }
 
-void ScanlineZBufferProcessor::getColor(int polygon_id, vec3 &color, vector<ActivePolygon> &APT) {
+vec3 ScanlineZBufferProcessor::getColor(int polygon_id,  vector<ActivePolygon> &APT) {
+	vec3 color;
 	for (int i = 0; i < APT.size(); i++) {
 		if (APT[i].polygon_id == polygon_id)
 		{
 			color = APT[i].color;
 		}
 	}
+	return color;
 }
 
 void ScanlineZBufferProcessor::clearDS() {

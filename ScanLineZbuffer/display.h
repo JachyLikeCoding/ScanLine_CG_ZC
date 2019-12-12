@@ -3,8 +3,9 @@
 #define DISPLAY_H
 
 #include "basic.h"
-#define WINWIDTH 1920
-#define WINHEIGHT 1080
+#include "ObjLoader.h"
+#include "ScanlineZBuffer.h"
 
+void display(int argc, char ** argv, int _eyePos[3], int _centerPos[3], Object &obj, ScanlineZBufferProcessor &Processor);
 
 #endif // !DISPLAY_H

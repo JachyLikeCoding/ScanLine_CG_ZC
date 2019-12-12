@@ -63,9 +63,6 @@ bool Object::loadObj(const string &objName) {
 	}
 
 	//just for debug:
-	/*for (int i = 0; i < vertexes.size(); i++) {
-		cout << vertexes[i][0] << vertexes[i][1] << vertexes[i][2] << endl;
-	}*/
 	cout << vertexes.size() << endl;
 	cout << faces.size() << endl;
 	return true;

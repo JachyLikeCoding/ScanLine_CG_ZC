@@ -9,7 +9,6 @@ public:
 	Object(){}
 	vector<vec3> vertexes;
 	vector<vector<int>> faces;
-	vector<vec3> colorlist;
 	vector<ClassifiedEdge> edges;
 	void initObject(const string &objName, int width, int height, int mode);
 	ClassifiedEdge CalEdge(int polygon_id, int v1_id, int v2_id, ClassifiedEdge edge);
@@ -22,7 +21,7 @@ public:
 private:
 	int winWidth, winHeight;
 	int mode;
-	void resize();
+
 };
 
 

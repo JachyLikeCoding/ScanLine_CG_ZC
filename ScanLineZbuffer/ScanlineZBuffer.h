@@ -12,11 +12,13 @@ public:
 	bool addPolygonToAPT(int maxY, vector<ActivePolygon> &APT, vector<vector<ClassifiedPolygon>> &CPT);
 	void addEdgeToAET(vector<ClassifiedEdge> &CET_y, vector<ActiveEdge> &AET, vector<ClassifiedPolygon> &CPT_y);
 	void ScanlineZBuffer(Object &_obj);
-	void updateBuffer(vector<ActiveEdge> &AET);
+	void updateBuffer(vector<ActiveEdge> &AET, int y);
 	void update_APTAET(vector<ActivePolygon> &APT, vector<ActiveEdge> &AET, vector<ClassifiedEdge> &CET_y);
 	void drawScanline(int y, vector<ActivePolygon> &APT, vector<ActiveEdge> &AET);
 	void resizeWindow(int width, int height);
-	void getColor(int polygon_id, vec3 &color, vector<ActivePolygon> &APT);
+	vec3 getColor(int polygon_id, vector<ActivePolygon> &APT);
+	//auto getFrameBuffer() { return &framebuffer[0]; }
+	vector<GLfloat> getframebuffer() { return framebuffer; }
 	void clearDS();
 	void test();//just for debug
 	void printAET(vector<ActiveEdge> &AET);
