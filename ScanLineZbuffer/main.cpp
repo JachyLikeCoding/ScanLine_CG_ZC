@@ -50,19 +50,14 @@ int main(int argc, char* argv[]) {
 	Object obj;
 	ScanlineZBufferProcessor scanlineProcessor;
 	string inputfilepath = "models/";
-	string objfile = "test1.obj";
+	string objfile = "batman.obj";
 	int mode = 1;
+
 	//TODO: 添加模式选择功能和模型选择功能。
 	inputfilepath += objfile;
 	obj.initObject(inputfilepath, WINDOW_WIDTH, WINDOW_HEIGHT, mode);
-	int eyePos[3] = { 0, 20, 50 };
-	int centerPos[3] = { 0, 12, 0 };
-	scanlineProcessor.ScanlineZBuffer(obj);
-	vector<GLfloat> framebuffer = scanlineProcessor.getframebuffer();
-	for (auto f : framebuffer) {
-		cout << f << ", ";
-	}
-	//display(argc, argv, eyePos, centerPos, obj, scanlineProcessor);
+	obj.test();
+	//display(argc, argv, obj, scanlineProcessor);
 	
 	system("pause");
 	return 0;

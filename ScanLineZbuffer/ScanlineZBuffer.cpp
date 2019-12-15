@@ -8,12 +8,13 @@ void ScanlineZBufferProcessor::initProcessor(Object &_obj) {
 	CET.resize(WINDOW_HEIGHT);
 	APT.clear();
 	AET.clear();
+	framebuffer.clear();
 	framebuffer.resize(3 * WINDOW_HEIGHT * WINDOW_WIDTH, 0);
 }
 
 //build classified polygon table
 void ScanlineZBufferProcessor::buildCPT() {
-	cout << "obj.faces.size()：" << obj.faces.size() << endl;
+	//cout << "obj.faces.size()：" << obj.faces.size() << endl;
 	for (int i = 0; i < obj.faces.size(); i++) {
 		int maxY;
 		GLfloat maxZ;
@@ -24,17 +25,14 @@ void ScanlineZBufferProcessor::buildCPT() {
 		obj.CalFaceEdges(i);
 		ClassifiedPolygon newCP(i, a, b, c, d, dy, color);
 
-		cout << "maxY:" << maxY << endl;
+		//cout << "maxY:" << maxY << endl;
 		CPT[maxY].push_back(newCP);
 	}
 }
 
 
 void ScanlineZBufferProcessor::buildCET() {
-	cout << "obj.faces.size()：" << obj.faces.size() << endl;
-	/*for (int i = 0; i < obj.faces.size(); i++) {
-		obj.CalFaceEdges(i);
-	}*/
+	//cout << "obj.faces.size()：" << obj.faces.size() << endl;
 	for (int i = 0; i < obj.edges.size(); i++) {
 		int maxY = obj.edges[i].maxY;
 		CET[maxY].push_back(obj.edges[i]);
@@ -42,22 +40,23 @@ void ScanlineZBufferProcessor::buildCET() {
 }
 
 
-bool ScanlineZBufferProcessor::addPolygonToAPT(int maxY, vector<ActivePolygon> &APT, vector<vector<ClassifiedPolygon>> &CPT) {
-	for (int i = 0; i < CPT[maxY].size(); i++){
-		ClassifiedPolygon cp = CPT[maxY][i];
-		ActivePolygon ap(cp.polygon_id, cp.a, cp.b, cp.c, cp.d, maxY, cp.color);
+bool ScanlineZBufferProcessor::addPolygonToAPT(int y, vector<ActivePolygon> &APT, vector<vector<ClassifiedPolygon>> &CPT) {
+	if (CPT[y].empty()) {
+		return false;
+	}
+	for (int i = 0; i < CPT[y].size(); i++){
+		ClassifiedPolygon cp = CPT[y][i];
+		ActivePolygon ap(cp.polygon_id, cp.a, cp.b, cp.c, cp.d, y, cp.color);
 		APT.push_back(ap);
 	}
-	//just for debug
-	cout << "----------------scanline y = " << maxY << "---------------------------"<< endl;
 	return true;
 }
 
 
 //如果有新的多边形加入到活化多边形表中，则把该多边形在oxy平面上的投影和扫描线相交的边加入到活化边表中
 void ScanlineZBufferProcessor::addEdgeToAET(vector<ClassifiedEdge>& CET_y, vector<ActiveEdge>& AET, vector<ClassifiedPolygon>& CPT_y){
-	cout << "CPT_y.size(): " << CPT_y.size() << endl;
-	cout << "CET_y.size(): " << CET_y.size() << endl;
+	/*cout << "CPT_y.size(): " << CPT_y.size() << endl;
+	cout << "CET_y.size(): " << CET_y.size() << endl;*/
 
 	for (int p = 0; p < CPT_y.size(); p++) {
 		int leftflag(-1), rightflag(-1);
@@ -91,38 +90,36 @@ void ScanlineZBufferProcessor::addEdgeToAET(vector<ClassifiedEdge>& CET_y, vecto
 }
 
 
-void ScanlineZBufferProcessor::ScanlineZBuffer(Object &_obj) {
+void ScanlineZBufferProcessor::ScanlineZBuffer(Object &_obj, int windowWidth) {
 	initProcessor(_obj);
 	buildCPT();
 	buildCET();
 	cout << "minY: " << obj.minY << endl;
 	cout << "maxY: " << obj.maxY << endl;
+
 	//计时
 	time_t t_start = clock();
 
 	for (int y = obj.maxY; y >= obj.minY; y--) {	//每一行扫描线
-		zbuffer.resize(WINDOW_WIDTH, -INT_MAX);//离视点最远
-		coloridbuffer.resize(WINDOW_WIDTH, -1);//背景颜色（索引设为-1）
-		//检查分类多边形表，如果有新的多边形涉及该扫描线，把它放入活化多边形表中
-		if (CET[y].empty()) {
-			continue;
+		cout << "----------------scanline y = " << y << "---------------------------" << endl;
+		zbuffer.clear();
+		coloridbuffer.clear();
+		zbuffer.resize(windowWidth, -INT_MAX);//离视点最远
+		coloridbuffer.resize(windowWidth, -1);//背景颜色（索引设为-1）
+		//检查分类多边形表，如果有新的多边形涉及该扫描线，把它放入活化多边形表中,再把它的边放入活化边表中
+		if (addPolygonToAPT(y, APT, CPT)) {
+			addEdgeToAET(CET[y], AET, CPT[y]);
 		}
-		else {
-			if (addPolygonToAPT(y, APT, CPT)) {
-				addEdgeToAET(CET[y], AET, CPT[y]);
-			}
-			updateBuffer(AET,y);
-			//update APT & AET
-			update_APTAET(APT, AET, CET[y]);
-		}
-		printAPT(APT);
-		printAET(AET);
+		//更新缓冲区和活化多边形表和活化边表
+		updateBuffer(AET,y);
+		//update APT & AET
+		update_APTAET(APT, AET, CET[y]);
 	}
 
 	time_t t_end = clock();
 	GLfloat deltaT = (t_end - t_start + 0.0) / CLOCKS_PER_SEC;
-	/*system("cls");*/
-	cout << "模型顶点数: " << obj.vertexes.size() << endl;
+	
+	cout << "模型顶点数: " << obj.vertices.size() << endl;
 	cout << "模型面片数：" << obj.faces.size() << endl;
 	cout << "扫描线Z-Buffer算法耗时：" << deltaT << endl;
 	//clear data
@@ -180,33 +177,33 @@ void ScanlineZBufferProcessor::resizeWindow(int width, int height) {
 
 //update z-buffer and color buffer
 void ScanlineZBufferProcessor::updateBuffer(vector<ActiveEdge> &AET, int y) {
-	for (int i = 0; i < AET.size(); i++) {
-		GLfloat zx = AET[i].xl;
-		for (int x = int(AET[i].xl)+1; x <= AET[i].xr; x++) {
-			zx += AET[i].dzx;
+	for (int i = 0; i < AET.size(); ++i) {
+		GLfloat zx;
+		for (int x = int(AET[i].xl); x <= AET[i].xr; ++x) {
+			if (x == int(AET[i].xl)) {
+				zx = AET[i].zl;
+			}
+			else {
+				zx += AET[i].dzx;
+			}
+			
 			if (zx > zbuffer[x]) {
+				/*cout << "zx > zbuffer" << endl;*/
 				//更新深度缓存
 				zbuffer[x] = zx;
+				//找到相应多边形的颜色
 				coloridbuffer[x] = AET[i].edge_polygon_id;
 				vec3 color = getColor(coloridbuffer[x], APT);
 				//更新帧缓存
-				framebuffer[3 * (y * WINDOW_WIDTH + x)] = color[0];
-				framebuffer[3 * (y * WINDOW_WIDTH + x) + 1] = color[1];
-				framebuffer[3 * (y * WINDOW_WIDTH + x) + 2] = color[2];
+				framebuffer[3 * (y * WINDOW_WIDTH + x )] = color.x;
+				framebuffer[3 * (y * WINDOW_WIDTH + x ) + 1] = color.y;
+				framebuffer[3 * (y * WINDOW_WIDTH + x ) + 2] = color.z;
 			}
 		}
 	}
 }
 
-void ScanlineZBufferProcessor::drawScanline(int y, vector<ActivePolygon> &APT, vector<ActiveEdge> &AET) {
-	glDrawPixels(winWidth, winHeight, GL_RGB, GL_FLOAT, &framebuffer[0]);
-	/*for (int x = 0; x < WINDOW_WIDTH; x++) {
-		vec3 pixelcolor;
-		getColor(coloridbuffer[x], pixelcolor, APT);
-		glColor3f(pixelcolor[0], pixelcolor[1], pixelcolor[2]);
-		glVertex3f(x, y, zbuffer[x]);
-	}*/
-}
+
 
 vec3 ScanlineZBufferProcessor::getColor(int polygon_id,  vector<ActivePolygon> &APT) {
 	vec3 color;

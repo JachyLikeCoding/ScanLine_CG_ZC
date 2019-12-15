@@ -5,7 +5,7 @@ ActiveEdge::ActiveEdge(ClassifiedEdge &leftEdge, ClassifiedEdge &rightEdge, Clas
 	xr = rightEdge.x;
 	dxl = leftEdge.dx;
 	dyl = leftEdge.dy;
-	dxr = leftEdge.dx;
+	dxr = rightEdge.dx;
 	dyr = rightEdge.dy;
 	edge_polygon_id = CP.polygon_id;
 	if (abs(CP.c) > 1e-5) {

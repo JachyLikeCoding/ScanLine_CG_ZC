@@ -5,11 +5,11 @@ void Object::initObject(const string &objName, int _width, int _height, int _mod
 	winHeight = _height;
 	mode = _mode;
 	bool flag = loadObj(objName);
-	if (flag) {
-		cout << "---------------------obj file is loaded successfully-------------------------" << endl;
-	}
-	else {
-		cerr << "load fail. Check your file '" << objName << " '.\n";
+	colorlist.resize(faces.size());
+	//ChangeOriginvertices();
+	if (!flag) 
+	{
+		cerr << "ERROR: File loaded fail. Please check your file '" << objName << " '.\n";
 	}
 }
 
@@ -28,7 +28,7 @@ bool Object::loadObj(const string &objName) {
 	minY = INT_MAX;
 	minX = INT_MAX;
 	maxY = INT_MIN;
-	maxX = INT_MAX;
+	maxX = INT_MIN;
 
 	while (input >> head) {
 		if (input.eof())
@@ -36,8 +36,8 @@ bool Object::loadObj(const string &objName) {
 		else {
 			if (head == "v") {
 				input >> x >> y >> z;
-				vertexes.push_back(vec3(x,y,z));
-
+				originvertices.push_back(vec3(x,y,z));
+				
 				minY = minY > y ? y : minY;
 				minX = minX > x ? x : minX;
 				maxY = maxY > y ? maxY : y;
@@ -51,7 +51,7 @@ bool Object::loadObj(const string &objName) {
 				for (int i = 0; i < 3; i++) {
 					iter = find(tmps[i].begin(), tmps[i].end(), '/');
 					vid[i] = stoi(tmps[i].substr(0, iter - tmps[i].begin()));//注意obj文件里顶点序号从1或-1开始
-					vid[i] > 0 ? (vid[i]--) : (vid[i] += vertexes.size());//这里把它统一成0,1,2,3序号
+					vid[i] > 0 ? (vid[i]--) : (vid[i] += originvertices.size());//这里把它统一成0,1,2,3序号
 				}
 				faces.push_back(vid);
 			}
@@ -62,51 +62,64 @@ bool Object::loadObj(const string &objName) {
 		}
 	}
 
+	ChangeScreenSize();
 	//just for debug:
-	cout << vertexes.size() << endl;
+	/*cout << originvertices.size() << endl;
 	cout << faces.size() << endl;
+	cout << "+++++++++++++before change vertices:" << endl;
+	cout << "minY:-----------------" << minY << endl;
+	cout << "maxY:-----------------" << maxY << endl;
+	cout << "minX:-----------------" << minX << endl;
+	cout << "maxX:-----------------" << maxX << endl;*/
+	/*cout << "-------------------------after change vertices:" << endl;*/
+	ChangeOriginvertices();
+	/*cout << "minY:-----------------" << minY << endl;
+	cout << "maxY:-----------------" << maxY << endl;
+	cout << "minX:-----------------" << minX << endl;
+	cout << "maxX:-----------------" << maxX << endl;*/
+
 	return true;
 }
 
 
 
 ClassifiedEdge Object::CalEdge(int polygon_id, int v1_id, int v2_id, ClassifiedEdge edge) {
-	vec3 v1 = vertexes[v1_id];
-	vec3 v2 = vertexes[v2_id];
+	vec3 v1 = vertices[v1_id];
+	vec3 v2 = vertices[v2_id];
 	edge.edge_polygon_id = polygon_id;
 	edge.x = v1.y > v2.y ? v1.x : v2.x;
 	edge.dx = -(v2.x - v1.x) / (v2.y - v1.y);
-	edge.dy = abs((int)(v1.y + 0.5f) - (int)(v2.y + 0.5f));
+	edge.dy = ((int)(v1.y + 0.5f) - (int)(v2.y + 0.5f));
 	edge.maxY = v1.y > v2.y ? (int)(v1.y + 0.5f) : (int)(v2.y + 0.5f);
 	return edge;
 }
 
 void Object::CalFace(int face_id, GLfloat &a, GLfloat &b, GLfloat &c, GLfloat &d, int &maxY, GLfloat &maxZ, int &dy, vec3 &color) {
-	int v1_id = faces[face_id][0];//three vertexes of the face
+	int v1_id = faces[face_id][0];//three vertices of the face
 	int v2_id = faces[face_id][1];
 	int v3_id = faces[face_id][2];
 	//step1: calculate parameters a,b,c,d
-	a = (float)((vertexes[v2_id].y - vertexes[v1_id].y)*(vertexes[v3_id].z - vertexes[v1_id].z)
-		- (vertexes[v2_id].z - vertexes[v1_id].z)*(vertexes[v3_id].y - vertexes[v1_id].y));
+	a = (float)((vertices[v2_id].y - vertices[v1_id].y)*(vertices[v3_id].z - vertices[v1_id].z)
+		- (vertices[v2_id].z - vertices[v1_id].z)*(vertices[v3_id].y - vertices[v1_id].y));
 
-	b = (float)((vertexes[v2_id].z - vertexes[v1_id].z)*(vertexes[v3_id].x - vertexes[v1_id].x)
-		- (vertexes[v2_id].x - vertexes[v1_id].x)*(vertexes[v3_id].z - vertexes[v1_id].z));
+	b = (float)((vertices[v2_id].z - vertices[v1_id].z)*(vertices[v3_id].x - vertices[v1_id].x)
+		- (vertices[v2_id].x - vertices[v1_id].x)*(vertices[v3_id].z - vertices[v1_id].z));
 
-	c = (float)((vertexes[v2_id].x - vertexes[v1_id].x)*(vertexes[v3_id].y - vertexes[v1_id].y)
-		- (vertexes[v2_id].y - vertexes[v1_id].y)*(vertexes[v3_id].x - vertexes[v1_id].x));
+	c = (float)((vertices[v2_id].x - vertices[v1_id].x)*(vertices[v3_id].y - vertices[v1_id].y)
+		- (vertices[v2_id].y - vertices[v1_id].y)*(vertices[v3_id].x - vertices[v1_id].x));
 
-	d = (float)(0 - (a*vertexes[v1_id].x + b * vertexes[v1_id].y + c * vertexes[v1_id].z));
+	d = (float)(0 - (a*vertices[v1_id].x + b * vertices[v1_id].y + c * vertices[v1_id].z));
 
 	//step2: calculate maxZ and maxY
-	maxZ = (vertexes[v1_id].z > vertexes[v2_id].z) ? vertexes[v1_id].z : vertexes[v2_id].z;
-	maxZ = (maxZ > vertexes[v3_id].z) ? maxZ : vertexes[v3_id].z;
+	maxZ = (vertices[v1_id].z > vertices[v2_id].z) ? vertices[v1_id].z : vertices[v2_id].z;
+	maxZ = (maxZ > vertices[v3_id].z) ? maxZ : vertices[v3_id].z;
 
-	float max_Y = (vertexes[v1_id].y > vertexes[v2_id].y) ? vertexes[v1_id].y : vertexes[v2_id].y;
-	max_Y = (max_Y > vertexes[v3_id].y) ? max_Y : vertexes[v3_id].y;
+	float max_Y = (vertices[v1_id].y > vertices[v2_id].y) ? vertices[v1_id].y : vertices[v2_id].y;
+	max_Y = (max_Y > vertices[v3_id].y) ? max_Y : vertices[v3_id].y;
 
 	//step 3: calculate dy
-	float minY = (vertexes[v1_id].y < vertexes[v2_id].y) ? vertexes[v1_id].y : vertexes[v2_id].y;
-	minY = (minY < vertexes[v3_id].y) ? minY : vertexes[v3_id].y;
+	float minY = (vertices[v1_id].y < vertices[v2_id].y) ? vertices[v1_id].y : vertices[v2_id].y;
+	minY = (minY < vertices[v3_id].y) ? minY : vertices[v3_id].y;
 	
 	maxY = (int)(max_Y + 0.5);
 	minY = (int)(minY + 0.5);
@@ -125,7 +138,7 @@ void Object::CalFace(int face_id, GLfloat &a, GLfloat &b, GLfloat &c, GLfloat &d
 	GLfloat p1 = abs(b);
 	GLfloat p2 = abs(c);
 	GLfloat cosTheta = p2 / sqrt(p0 + p1 + p2);
-	//d = -a * vertexes[v1_id].x - b * vertexes[v1_id].y - c * vertexes[v1_id].z;
+	//d = -a * vertices[v1_id].x - b * vertices[v1_id].y - c * vertices[v1_id].z;
 	//color.x = cosTheta;
 	color.x = rand() % 100 / (float)(100);
 	color.y = rand() % 100 / (float)(100);
@@ -140,17 +153,17 @@ void Object::CalFaceEdges(int face_id) {
 	ClassifiedEdge edge1, edge2, edge3;
 
 	int v1, v2, v3;// v1.y > v2.y > v3.y
-	int v1_id = faces[face_id][0];//three vertexes of the face
+	int v1_id = faces[face_id][0];//three vertices of the face
 	int v2_id = faces[face_id][1];
 	int v3_id = faces[face_id][2];
 
-	if (vertexes[v1_id].y < vertexes[v2_id].y) {
-		if (vertexes[v2_id].y < vertexes[v3_id].y) {
+	if (vertices[v1_id].y < vertices[v2_id].y) {
+		if (vertices[v2_id].y < vertices[v3_id].y) {
 			v1 = v3_id;
 			v2 = v2_id;
 			v3 = v1_id;
 		}else {
-			if (vertexes[v1_id].y < vertexes[v3_id].y) {
+			if (vertices[v1_id].y < vertices[v3_id].y) {
 				v1 = v2_id;
 				v2 = v3_id;
 				v3 = v1_id;
@@ -161,12 +174,12 @@ void Object::CalFaceEdges(int face_id) {
 			}
 		}
 	}else {
-		if (vertexes[v1_id].y < vertexes[v3_id].y) {
+		if (vertices[v1_id].y < vertices[v3_id].y) {
 			v1 = v3_id;
 			v2 = v1_id;
 			v3 = v2_id;
 		}else {
-			if (vertexes[v2_id].y < vertexes[v3_id].y) {
+			if (vertices[v2_id].y < vertices[v3_id].y) {
 				v1 = v1_id;
 				v2 = v3_id;
 				v3 = v2_id;
@@ -185,20 +198,79 @@ void Object::CalFaceEdges(int face_id) {
 
 //just for debug
 void Object::test() {
-	//test vertexes of face
+	//test vertices of face
 	cout << "face count: " << faces.size() << endl;
-	for (int i = 0; i < faces.size(); i++) {
+	cout << "vertices count:" << originvertices.size() << endl;
+	/*for (int i = 0; i < faces.size(); i++) {
 		CalFaceEdges(i);
 		cout << "[" << i << "]";
 		for (int j = 0; j < faces[i].size(); j++) {
 			cout << faces[i][j] << "\t";
 		} 
 		cout << endl;
-	}
+	}*/
 	//test edges of face:
-	cout << edges.size() << endl;
+	/*cout << edges.size() << endl;
 	for (int i = 0; i < edges.size(); i++) {
 		cout << "edge_polygon_id: " << edges[i].edge_polygon_id;
 		cout << "\tedge_dy: " << edges[i].dy << endl;
+	}*/
+}
+
+void Object::ChangeScreenSize() {
+	GLfloat dx = maxX - minX;
+	GLfloat dy = maxY - minY;
+	if (dx > dy) {	//winWidth不变
+		winHeight = (int)((winWidth) * dy / dx);
+	}
+	else {	//winHeight不变
+		winWidth = (int)((winHeight)* dx / dy);
+	}
+}
+
+void Object::ChangeOriginvertices() {
+	GLfloat dx = maxX - minX;
+	GLfloat dy = maxY - minY;
+	
+	GLfloat scale = dx / winWidth;
+	/*GLfloat scaleY = dy / winHeight;
+	GLfloat scale = scaleX < scaleY ? scaleX : scaleY;*/
+
+	GLfloat centerX = dx / 2;
+	GLfloat centerY = dy / 2;
+
+	GLfloat moveX = (minX < 0) ? 1.1 * abs(minX) : 0.1 * minX;
+	GLfloat moveY = (minY < 0) ? 1.1 * abs(minY) : 0.1 * minY;
+
+	/*if (scale < 1) {
+		scale = (int)(1 / scale) >> 1;
+	}
+	else if (scale > 1) {
+		scale = 1.0f / (int)(scale + 0.5);
+	}
+	else {
+		scale = 1;
+	}*/
+	cout << "scale: " << scale << endl;
+	maxY = INT_MIN;
+	maxX = INT_MIN;
+	minY = INT_MAX;
+	minX = INT_MAX;
+	vertices.clear();
+	
+	for (auto v : originvertices) {
+		vec3 tmpv(v.x + moveX, v.y + moveY, v.z);
+		tmpv = tmpv / scale;
+
+		maxY = maxY > tmpv.y ? maxY : tmpv.y;
+		maxX = maxX > tmpv.x ? maxX : tmpv.x;
+		minY = minY < tmpv.y ? minY : tmpv.y;
+		minX = minX < tmpv.x ? minX : tmpv.x;
+
+		vertices.push_back(tmpv);
+	}
+	cout << "screen vertices:" << endl;
+	for (auto v : vertices) {
+		cout << v.x << ", " << v.y << ", " << v.z << endl;
 	}
 }
