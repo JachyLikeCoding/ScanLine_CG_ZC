@@ -26,8 +26,9 @@ private:
 	int mode;
 	bool loadObj(const string &objName);
 	ClassifiedEdge CalEdge(int polygon_id, int v1_id, int v2_id, ClassifiedEdge edge);
-	void ChangeScreenSize();
+	void getScreenPos();
 	void ChangeOriginvertices();
+	void ChangeScreenSize();
 };
 
 

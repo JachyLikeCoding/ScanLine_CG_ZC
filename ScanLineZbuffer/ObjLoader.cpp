@@ -6,7 +6,7 @@ void Object::initObject(const string &objName, int _width, int _height, int _mod
 	mode = _mode;
 	bool flag = loadObj(objName);
 	colorlist.resize(faces.size());
-	//ChangeOriginvertices();
+	
 	if (!flag) 
 	{
 		cerr << "ERROR: File loaded fail. Please check your file '" << objName << " '.\n";
@@ -64,20 +64,21 @@ bool Object::loadObj(const string &objName) {
 
 	ChangeScreenSize();
 	//just for debug:
-	/*cout << originvertices.size() << endl;
+	cout << originvertices.size() << endl;
 	cout << faces.size() << endl;
 	cout << "+++++++++++++before change vertices:" << endl;
 	cout << "minY:-----------------" << minY << endl;
 	cout << "maxY:-----------------" << maxY << endl;
 	cout << "minX:-----------------" << minX << endl;
-	cout << "maxX:-----------------" << maxX << endl;*/
-	/*cout << "-------------------------after change vertices:" << endl;*/
+	cout << "maxX:-----------------" << maxX << endl;
+	cout << "-------------------------after change vertices:" << endl;
+	//getScreenPos();
 	ChangeOriginvertices();
-	/*cout << "minY:-----------------" << minY << endl;
+	cout << "minY:-----------------" << minY << endl;
 	cout << "maxY:-----------------" << maxY << endl;
 	cout << "minX:-----------------" << minX << endl;
-	cout << "maxX:-----------------" << maxX << endl;*/
-
+	cout << "maxX:-----------------" << maxX << endl;
+	
 	return true;
 }
 
@@ -108,6 +109,10 @@ void Object::CalFace(int face_id, GLfloat &a, GLfloat &b, GLfloat &c, GLfloat &d
 	c = (float)((vertices[v2_id].x - vertices[v1_id].x)*(vertices[v3_id].y - vertices[v1_id].y)
 		- (vertices[v2_id].y - vertices[v1_id].y)*(vertices[v3_id].x - vertices[v1_id].x));
 
+	GLfloat sum = abs(a) + abs(b) + abs(c);
+	a = a / sum;
+	b = b / sum;
+	c = c / sum;
 	d = (float)(0 - (a*vertices[v1_id].x + b * vertices[v1_id].y + c * vertices[v1_id].z));
 
 	//step2: calculate maxZ and maxY
@@ -124,22 +129,15 @@ void Object::CalFace(int face_id, GLfloat &a, GLfloat &b, GLfloat &c, GLfloat &d
 	maxY = (int)(max_Y + 0.5);
 	minY = (int)(minY + 0.5);
 	dy = maxY - minY;
-
 	//step4: calculate color
-	/*GLfloat param_abssum = abs(a) + abs(b) + abs(c);
-	if (param_abssum == 0) {
-		cerr << "normal vector is 0." << endl;
-		param_abssum = 1;
-	}
-	a /= param_abssum;
-	b /= param_abssum;
-	c /= param_abssum;*/
+	
 	GLfloat p0 = abs(a);
 	GLfloat p1 = abs(b);
 	GLfloat p2 = abs(c);
 	GLfloat cosTheta = p2 / sqrt(p0 + p1 + p2);
-	//d = -a * vertices[v1_id].x - b * vertices[v1_id].y - c * vertices[v1_id].z;
-	//color.x = cosTheta;
+	/*color.x = cosTheta;
+	color.y = cosTheta;
+	color.z = cosTheta;*/
 	color.x = rand() % 100 / (float)(100);
 	color.y = rand() % 100 / (float)(100);
 	color.z = rand() % 100 / (float)(100);
@@ -228,49 +226,57 @@ void Object::ChangeScreenSize() {
 	}
 }
 
+
+
 void Object::ChangeOriginvertices() {
-	GLfloat dx = maxX - minX;
-	GLfloat dy = maxY - minY;
+	float xDis = maxX - minX;
+	float yDis = maxY - minY;
+	float xScale = (float)(maxX - minX) / winWidth;
+	float yScale = (float)(maxY - minY) / winHeight;
 	
-	GLfloat scale = dx / winWidth;
-	/*GLfloat scaleY = dy / winHeight;
-	GLfloat scale = scaleX < scaleY ? scaleX : scaleY;*/
+	float xCenter = (float)(maxX + minX) / 2;
+	float yCenter = (float)(maxY + minY) / 2;
 
-	GLfloat centerX = dx / 2;
-	GLfloat centerY = dy / 2;
+	float Scale = xScale > yScale ? yScale : xScale;
+	cout << "scale: " << Scale << endl;
 
-	GLfloat moveX = (minX < 0) ? 1.1 * abs(minX) : 0.1 * minX;
-	GLfloat moveY = (minY < 0) ? 1.1 * abs(minY) : 0.1 * minY;
+	//移到左上角
+	float xMovement = -minX * 1.2;
+	float yMovement = -minY  * 1.2;
+	
 
-	/*if (scale < 1) {
-		scale = (int)(1 / scale) >> 1;
+	if (Scale < 1) {
+		Scale = 1 / Scale * 0.8;
 	}
-	else if (scale > 1) {
-		scale = 1.0f / (int)(scale + 0.5);
+	else if (Scale > 1) {
+		Scale = 1 / Scale * 0.8;
 	}
-	else {
-		scale = 1;
-	}*/
-	cout << "scale: " << scale << endl;
+	cout << "scale: " << Scale << endl;
 	maxY = INT_MIN;
-	maxX = INT_MIN;
 	minY = INT_MAX;
+	maxX = INT_MIN;
 	minX = INT_MAX;
 	vertices.clear();
-	
-	for (auto v : originvertices) {
-		vec3 tmpv(v.x + moveX, v.y + moveY, v.z);
-		tmpv = tmpv / scale;
+	if (Scale != 1 || xMovement != 0 || yMovement != 0) {
+		for (auto v : originvertices) {
+			cout << "v: " << v.x << ", " << v.y << ", " << v.z << endl;
+			vec3 tmpv(v.x + xMovement, v.y + yMovement, v.z);//移到左上角
+			
+			tmpv = tmpv * Scale;//缩放
 
-		maxY = maxY > tmpv.y ? maxY : tmpv.y;
-		maxX = maxX > tmpv.x ? maxX : tmpv.x;
-		minY = minY < tmpv.y ? minY : tmpv.y;
-		minX = minX < tmpv.x ? minX : tmpv.x;
-
-		vertices.push_back(tmpv);
+			maxY = maxY > tmpv.y ? maxY : tmpv.y;
+			maxX = maxX > tmpv.x ? maxX : tmpv.x;
+			minY = minY < tmpv.y ? minY : tmpv.y;
+			minX = minX < tmpv.x ? minX : tmpv.x;
+			vertices.push_back(tmpv);
+			cout << "after v: " << tmpv.x << ", " << tmpv.y  << ", " << tmpv.z << endl;
+		}
 	}
-	cout << "screen vertices:" << endl;
-	for (auto v : vertices) {
-		cout << v.x << ", " << v.y << ", " << v.z << endl;
+	cout << "最值：" << maxY << ", " << maxX << ", " <<  minY << ", " << minX << endl;
+	if (maxY > winHeight) {
+		cerr << "Y out of range!!!!!!\n";
+	}
+	if (maxX > winWidth) {
+		cerr << "x out of range!!!!!!\n";
 	}
 }

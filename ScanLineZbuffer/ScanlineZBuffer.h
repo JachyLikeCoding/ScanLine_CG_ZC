@@ -6,8 +6,7 @@
 #include "ObjLoader.h"
 class ScanlineZBufferProcessor {
 public:
-	Object obj;
-	int winWidth, winHeight;
+	
 	vector<vector<ClassifiedPolygon>> CPT;
 	vector<vector<ClassifiedEdge>> CET;
 	vector<ActivePolygon> APT;
@@ -21,6 +20,8 @@ public:
 	
 
 private:
+	Object obj;
+	int winWidth, winHeight;
 	vec3 getColor(int polygon_id, vector<ActivePolygon> &APT);
 	vector<GLfloat> zbuffer;//z»º³åÆ÷
 	vector<int> coloridbuffer;//Ö¡»º³åÆ÷

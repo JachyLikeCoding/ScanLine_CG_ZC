@@ -8,4 +8,5 @@
 
 void display(int argc, char ** argv, Object &obj, ScanlineZBufferProcessor &Processor);
 
+
 #endif // !DISPLAY_H

@@ -24,9 +24,10 @@ void InitGLUT(int argc, char ** argv) {
 void displayCallback() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); //清除颜色缓冲以及深度缓冲
 	//绘制图像
-	scanlineProcessor.ScanlineZBuffer(obj, WINDOW_WIDTH);
+	scanlineProcessor.ScanlineZBuffer(obj, obj.getWinWidth());
 	vector<GLfloat> framebuffer = scanlineProcessor.getframebuffer();
-	glDrawPixels(WINDOW_WIDTH, WINDOW_HEIGHT, GL_RGB, GL_FLOAT, &framebuffer[0]);
+	glDrawPixels(obj.getWinWidth(), obj.getWinHeight(), GL_RGB, GL_FLOAT, &framebuffer[0]);
+	
 	glutSwapBuffers();
 }
 
@@ -50,18 +51,22 @@ void mouseCallback(int button, int state, int x, int y) {
 	}
 }
 
-//void mouseMotionCallback(int x, int y) {
-//	if (mouseRightDown) {
-//		cameraAngleY += (x - mouseX);
-//		cameraAngleX += (y - mouseY);
-//		mouseX = x;
-//		mouseY = y;
-//	}
-//	if (mouseLeftDown) {
-//		cameraDistance += (y - mouseY) * 0.2f;
-//		mouseY = y;
-//	}
-//}
+int SCREEN_WIDTH = WINDOW_WIDTH;
+int SCREEN_HEIGHT = WINDOW_HEIGHT;
+float Ortho = 5;
+void reshape(int w, int h)
+{
+	SCREEN_WIDTH = w;
+	SCREEN_HEIGHT = h;
+	float scale = float(w) / float(h);
+
+	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(-Ortho * scale, Ortho*scale, -Ortho, Ortho);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
 
 void display(int argc, char ** argv, Object &_obj, ScanlineZBufferProcessor &_Processor){
 	//传参，初始化变量
@@ -75,5 +80,6 @@ void display(int argc, char ** argv, Object &_obj, ScanlineZBufferProcessor &_Pr
 	glutCreateWindow("Scanline Z-Buffer by ChiZhang");   // 窗口标题
 	//InitGLUT(argc, argv);
 	glutDisplayFunc(displayCallback);
+	glutReshapeFunc(reshape);
 	glutMainLoop();
 }
