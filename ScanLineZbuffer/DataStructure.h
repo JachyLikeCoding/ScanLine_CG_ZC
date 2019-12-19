@@ -3,6 +3,12 @@
 #define DATASTRUCTURE_H
 #include "Basic.h"
 
+class ClassifiedPolygon;
+class ClassifiedEdge;
+class ActiveEdge;
+class ActivePolygon;
+
+
 //分类多边形表
 class ClassifiedPolygon {
 public:
@@ -32,21 +38,6 @@ public:
 };
 
 
-//活化边表：存放投影多边形边界与扫描线相交的边对
-class ActiveEdge {
-public:
-	GLfloat xl, xr;					//左、右交点的x坐标
-	GLfloat dxl, dxr;
-	GLfloat dyl, dyr;
-	int edge_polygon_id;
-	vec3 color;
-	GLfloat dzx;
-	GLfloat dzy;
-	GLfloat zl;
-
-	ActiveEdge(ClassifiedEdge &leftEdge, ClassifiedEdge &rightEdge, ClassifiedPolygon &CP);
-};
-
 //活化多边形表
 class ActivePolygon {
 public:
@@ -59,6 +50,24 @@ public:
 		polygon_id(_polygon_id), a(_a), b(_b), c(_c), d(_d), remain_dy(_dy), color(_color){}
 };
 
+
+
+//活化边表：存放投影多边形边界与扫描线相交的边对
+class ActiveEdge {
+public:
+	GLfloat xl, xr;					//左、右交点的x坐标
+	GLfloat dxl, dxr;
+	GLfloat dyl, dyr;
+	int edge_polygon_id;
+	vec3 color;
+	GLfloat dzx;
+	GLfloat dzy;
+	GLfloat zl;
+	ActiveEdge(ClassifiedEdge &leftEdge, ClassifiedEdge &rightEdge, ActivePolygon &AP);
+	//ActiveEdge(ClassifiedEdge &leftEdge, ClassifiedEdge &rightEdge, ClassifiedPolygon &CP);
+	void changeLeftEdge(ClassifiedEdge &celeft);
+	void changeRightEdge(ClassifiedEdge &ceright);
+};
 
 
 #endif // !DATASTRUCTURE_H

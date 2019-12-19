@@ -1,5 +1,14 @@
 #include "ObjLoader.h"
 
+int Round(GLfloat x) {
+	if (x > 0) {
+		return (int)(x + 0.5);
+	}
+	else {
+		return (int)(x - 0.5);
+	}
+}
+
 void Object::initObject(const string &objName, int _width, int _height, int _mode) {
 	winWidth = _width;
 	winHeight = _height;
@@ -72,7 +81,7 @@ bool Object::loadObj(const string &objName) {
 	cout << "minX:-----------------" << minX << endl;
 	cout << "maxX:-----------------" << maxX << endl;
 	cout << "-------------------------after change vertices:" << endl;
-	//getScreenPos();
+	//getScreenPos(originvertices, vertices);
 	ChangeOriginvertices();
 	cout << "minY:-----------------" << minY << endl;
 	cout << "maxY:-----------------" << maxY << endl;
@@ -88,9 +97,14 @@ ClassifiedEdge Object::CalEdge(int polygon_id, int v1_id, int v2_id, ClassifiedE
 	vec3 v1 = vertices[v1_id];
 	vec3 v2 = vertices[v2_id];
 	edge.edge_polygon_id = polygon_id;
-	edge.x = v1.y > v2.y ? v1.x : v2.x;
-	edge.dx = -(v2.x - v1.x) / (v2.y - v1.y);
+	edge.x = v1.y > v2.y ? v1.x : v2.x;//边的上端点的x坐标
+	
 	edge.dy = ((int)(v1.y + 0.5f) - (int)(v2.y + 0.5f));
+	if (edge.dy == 0) {
+		cout << "dy = 0" << endl;
+		system("pause");
+	}
+	edge.dx = -(v2.x - v1.x) / (v2.y - v1.y);
 	edge.maxY = v1.y > v2.y ? (int)(v1.y + 0.5f) : (int)(v2.y + 0.5f);
 	return edge;
 }
@@ -110,9 +124,9 @@ void Object::CalFace(int face_id, GLfloat &a, GLfloat &b, GLfloat &c, GLfloat &d
 		- (vertices[v2_id].y - vertices[v1_id].y)*(vertices[v3_id].x - vertices[v1_id].x));
 
 	GLfloat sum = abs(a) + abs(b) + abs(c);
-	a = a / sum;
+	/*a = a / sum;
 	b = b / sum;
-	c = c / sum;
+	c = c / sum;*/
 	d = (float)(0 - (a*vertices[v1_id].x + b * vertices[v1_id].y + c * vertices[v1_id].z));
 
 	//step2: calculate maxZ and maxY
@@ -144,7 +158,7 @@ void Object::CalFace(int face_id, GLfloat &a, GLfloat &b, GLfloat &c, GLfloat &d
 	/*color.y = cosTheta;
 	color.z = cosTheta;*/
 
-	cout << face_id << " face color : " << color.x << "\t" << color.y << "\t" << color.z << endl;
+	//cout << face_id << " face color : " << color.x << "\t" << color.y << "\t" << color.z << endl;
 }
 
 void Object::CalFaceEdges(int face_id) {
@@ -188,10 +202,13 @@ void Object::CalFaceEdges(int face_id) {
 			}
 		}
 	}
-
-	edges.push_back(CalEdge(face_id, v1, v2, edge1));
-	edges.push_back(CalEdge(face_id, v1, v3, edge2));
-	edges.push_back(CalEdge(face_id, v2, v3, edge3));
+	//没有把平行于扫描线的边加入分类边表
+	if(vertices[v1].y != vertices[v2].y)
+		edges.push_back(CalEdge(face_id, v1, v2, edge1));
+	if (vertices[v1].y != vertices[v3].y)
+		edges.push_back(CalEdge(face_id, v1, v3, edge2));
+	if (vertices[v2].y != vertices[v3].y)
+		edges.push_back(CalEdge(face_id, v2, v3, edge3));
 }
 
 //just for debug
@@ -216,8 +233,8 @@ void Object::test() {
 }
 
 void Object::ChangeScreenSize() {
-	GLfloat dx = maxX - minX;
-	GLfloat dy = maxY - minY;
+	GLfloat dx = round(maxX) - round(minX);
+	GLfloat dy = round(maxY) - round(minY);
 	if (dx > dy) {	//winWidth不变
 		winHeight = (int)((winWidth) * dy / dx);
 	}
@@ -231,26 +248,24 @@ void Object::ChangeScreenSize() {
 void Object::ChangeOriginvertices() {
 	float xDis = maxX - minX;
 	float yDis = maxY - minY;
-	float xScale = (float)(maxX - minX) / winWidth;
-	float yScale = (float)(maxY - minY) / winHeight;
-	
-	float xCenter = (float)(maxX + minX) / 2;
-	float yCenter = (float)(maxY + minY) / 2;
-
-	float Scale = xScale > yScale ? yScale : xScale;
+	float xScale = (float)(xDis / winWidth);
+	float yScale = (float)(yDis / winHeight);
+	float Scale = xScale > yScale ? xScale : yScale;
 	cout << "scale: " << Scale << endl;
 
 	//移到左上角
-	float xMovement = -minX * 1.2;
-	float yMovement = -minY  * 1.2;
-	
+	float xMovement = minX <= 0 ? 1.2 * abs(minX) : 0.1* abs(minX);
+	float yMovement = minY <= 0 ? 1.2 * abs(minY) : 0.1 * abs(minX);
 
-	if (Scale < 1) {
-		Scale = 1 / Scale * 0.8;
-	}
-	else if (Scale > 1) {
-		Scale = 1 / Scale * 0.8;
-	}
+	if (Scale <= 0.01)
+		Scale = (int)(1 / Scale - 0.5) * 0.5;
+	else if (Scale < 0.5)
+		Scale = (int)(1 / Scale) * 0.6;
+	else if (Scale > 1)
+		Scale = 1.0f / (int)(Scale + 0.5);
+	else
+		Scale = 1;
+
 	cout << "scale: " << Scale << endl;
 	maxY = INT_MIN;
 	minY = INT_MAX;
@@ -259,17 +274,19 @@ void Object::ChangeOriginvertices() {
 	vertices.clear();
 	if (Scale != 1 || xMovement != 0 || yMovement != 0) {
 		for (auto v : originvertices) {
-			cout << "v: " << v.x << ", " << v.y << ", " << v.z << endl;
-			vec3 tmpv(v.x + xMovement, v.y + yMovement, v.z);//移到左上角
-			
+			//cout << "v: " << v.x << ", " << v.y << ", " << v.z << endl;
+			vec3 tmpv(v.x + xMovement, v.y + yMovement, v.z);//平移
 			tmpv = tmpv * Scale;//缩放
+			tmpv.x = round(tmpv.x);
+			tmpv.y = round(tmpv.y);
+			tmpv.z = round(tmpv.z);
 
 			maxY = maxY > tmpv.y ? maxY : tmpv.y;
 			maxX = maxX > tmpv.x ? maxX : tmpv.x;
 			minY = minY < tmpv.y ? minY : tmpv.y;
 			minX = minX < tmpv.x ? minX : tmpv.x;
 			vertices.push_back(tmpv);
-			cout << "after v: " << tmpv.x << ", " << tmpv.y  << ", " << tmpv.z << endl;
+			//cout << "after v: " << tmpv.x << ", " << tmpv.y  << ", " << tmpv.z << endl;
 		}
 	}
 	cout << "最值：" << maxY << ", " << maxX << ", " <<  minY << ", " << minX << endl;
@@ -278,5 +295,29 @@ void Object::ChangeOriginvertices() {
 	}
 	if (maxX > winWidth) {
 		cerr << "x out of range!!!!!!\n";
+	}
+}
+
+
+
+void Object::getScreenPos(vector<vec3> &original, vector<ivec3> &screen_output) {
+	screen_output.clear();
+
+	GLint viewport[4];
+	GLdouble modelview[16];
+	GLdouble projection[16];
+
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	vector<vec3>::iterator iter;
+	for (iter = original.begin(); iter != original.end(); ++iter)
+	{
+		GLdouble x, y, z;
+
+		gluProject(iter->x, iter->y, iter->z, modelview, projection, viewport, &x, &y, &z);
+		ivec3 screen_pos(x, y, iter->z);
+		screen_output.push_back(screen_pos);
 	}
 }

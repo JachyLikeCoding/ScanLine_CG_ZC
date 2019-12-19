@@ -7,7 +7,7 @@
 class Object {
 public:
 	Object(){}
-	vector<vec3> vertices;
+	vector<ivec3> vertices;
 	vector<vec3> originvertices;
 	vector<vec3> colorlist;
 	vector<vector<int>> faces;
@@ -26,7 +26,7 @@ private:
 	int mode;
 	bool loadObj(const string &objName);
 	ClassifiedEdge CalEdge(int polygon_id, int v1_id, int v2_id, ClassifiedEdge edge);
-	void getScreenPos();
+	void getScreenPos(vector<vec3> &originalposition, vector<ivec3> &screenposition);
 	void ChangeOriginvertices();
 	void ChangeScreenSize();
 };

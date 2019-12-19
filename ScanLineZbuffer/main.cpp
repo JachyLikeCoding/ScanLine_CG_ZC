@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
 	Object obj;
 	ScanlineZBufferProcessor scanlineProcessor;
 	string inputfilepath = "models/";
-	string objfile = "test1.obj";
+	string objfile = "test.obj";
 	int mode = 1;
 
 	//TODO: 添加模式选择功能和模型选择功能。

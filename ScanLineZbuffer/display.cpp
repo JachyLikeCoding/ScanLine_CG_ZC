@@ -81,5 +81,6 @@ void display(int argc, char ** argv, Object &_obj, ScanlineZBufferProcessor &_Pr
 	//InitGLUT(argc, argv);
 	glutDisplayFunc(displayCallback);
 	glutReshapeFunc(reshape);
+
 	glutMainLoop();
 }

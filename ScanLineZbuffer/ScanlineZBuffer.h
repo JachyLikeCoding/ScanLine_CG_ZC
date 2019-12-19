@@ -17,7 +17,9 @@ public:
 	
 	void resizeWindow(int width, int height);
 	vector<GLfloat> getframebuffer() { return framebuffer; }
-	
+	int findNextCE(ActiveEdge &AE, GLfloat x, vector<ClassifiedEdge> &CET_y);
+
+
 
 private:
 	Object obj;
@@ -30,10 +32,13 @@ private:
 	void buildCET();
 	void buildCPT();
 	bool addPolygonToAPT(int maxY, vector<ActivePolygon> &APT, vector<vector<ClassifiedPolygon>> &CPT);
-	void addEdgeToAET(vector<ClassifiedEdge> &CET_y, vector<ActiveEdge> &AET, vector<ClassifiedPolygon> &CPT_y);
+	//void addEdgeToAET(vector<ClassifiedEdge> &CET_y, vector<ActiveEdge> &AET, vector<ClassifiedPolygon> &CPT_y);
+	void addEdgeToAET(vector<ClassifiedEdge> &CET_y, vector<ActiveEdge> &AET, vector<ActivePolygon> &APT);
 	void clearDS();
-	void updateBuffer(vector<ActiveEdge> &AET, int y);
-	void update_APTAET(vector<ActivePolygon> &APT, vector<ActiveEdge> &AET, vector<ClassifiedEdge> &CET_y);
+	bool updateBuffer(vector<ActiveEdge> &AET, int y);
+	bool update_APTAET(vector<ActivePolygon> &APT, vector<ActiveEdge> &AET, vector<ClassifiedEdge> &CET_y);
+	bool update_AET(ActiveEdge &AE, vector<ClassifiedEdge> &CET_y);
+	bool update_APT(ActivePolygon &AP);
 	//just for debug
 	void test();
 	void printAET(vector<ActiveEdge> &AET);
